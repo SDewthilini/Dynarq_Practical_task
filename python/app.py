@@ -13,13 +13,42 @@ DATA_DIR = os.environ.get("DATA_DIR", "../data")
 TODAY = os.environ.get("TODAY") or date.today().isoformat()
 DECISIONS = {}
 
+STYLES = """
+:root{font-family:'Segoe UI',Arial,sans-serif;color:#202b35;background:#f4f3ef;font-synthesis:none;text-rendering:optimizeLegibility}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 10% 0%,#e5eee8 0,transparent 34%),#f4f3ef;min-height:100vh}
+header{position:relative;overflow:hidden;background:#173f3b;color:#fff;padding:30px max(24px,calc((100vw - 1080px)/2));}
+header:after{content:'';position:absolute;width:360px;height:360px;border:1px solid #ffffff20;border-radius:50%;right:7%;top:-245px;box-shadow:0 0 0 42px #ffffff0a,0 0 0 84px #ffffff08}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:54px;position:relative;z-index:1}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.01em}.brand-mark{display:grid;place-items:center;width:34px;height:34px;background:#d4f06e;color:#173f3b;border-radius:11px;font-weight:800}
+.date-pill{border:1px solid #ffffff38;background:#ffffff0d;padding:8px 12px;border-radius:999px;color:#e0e9e4;font-size:.83rem}
+.hero-copy{position:relative;z-index:1;max-width:650px;padding-bottom:43px}.kicker{color:#d4f06e;font-size:.74rem;text-transform:uppercase;letter-spacing:.16em;font-weight:700;margin:0 0 13px}
+h1,h2,h3,p{margin-top:0}h1,h2,h3{font-family:'Segoe UI',Arial,sans-serif}h1{font-size:clamp(2rem,5vw,3.6rem);line-height:1.08;letter-spacing:-.045em;margin-bottom:14px}.hero-copy>p:last-child{color:#d0ded8;font-size:1.03rem;line-height:1.6;margin-bottom:0}
+main{max-width:1080px;padding:0 24px 64px;margin:-22px auto 0;position:relative;z-index:2}.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:38px}
+.stat{background:#fff;border:1px solid #e6e7df;border-radius:16px;padding:20px 22px;box-shadow:0 9px 28px #183d3510;display:flex;align-items:center;gap:15px}
+.stat-icon{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:#edf4e4;color:#456b37;font-size:1.15rem}.stat:nth-child(2) .stat-icon{background:#fff0dc;color:#986319}.stat:nth-child(3) .stat-icon{background:#fbe8e1;color:#a35138}
+.stat strong{display:block;font:800 1.65rem 'Segoe UI',Arial,sans-serif;letter-spacing:-.04em}.stat span{color:#77817d;font-size:.82rem}
+.section-heading{display:flex;justify-content:space-between;align-items:end;gap:12px;margin-bottom:16px}.section-heading h2{font-size:1.35rem;letter-spacing:-.03em;margin:0}.section-heading p{font-size:.84rem;color:#77817d;margin:0}
+.reminder-card,.empty,.skipped-panel{background:#fff;border:1px solid #e6e7df;border-radius:18px;margin:12px 0;box-shadow:0 8px 24px #183d3508}.reminder-card{padding:22px 24px;border-left:4px solid #9ac75b}.reminder-card[data-step='firm']{border-left-color:#e8ad56}.reminder-card[data-step='final']{border-left-color:#d9755b}
+.card-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}.card-title{display:flex;align-items:center;gap:12px}.avatar{flex:0 0 42px;width:42px;height:42px;border-radius:14px;background:#e8f0e9;color:#285b4e;display:grid;place-items:center;font-weight:800}.card h3{font-size:1.05rem;letter-spacing:-.02em;margin:2px 0 0}.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-weight:700;font-size:.68rem;color:#71817a;margin:0}
+.badge{display:inline-flex;align-items:center;border-radius:999px;background:#eff4e9;color:#4d6e37;padding:7px 11px;font-size:.79rem;font-weight:700;white-space:nowrap}.reminder-card[data-step='firm'] .badge{background:#fff3df;color:#92621e}.reminder-card[data-step='final'] .badge{background:#fcebe5;color:#a04e38}
+.details{display:flex;gap:9px;flex-wrap:wrap;margin:18px 0 14px}.detail-chip{border:1px solid #edf0ea;border-radius:9px;padding:8px 10px;font-size:.84rem;color:#65716c}.detail-chip strong{color:#263a34;font-weight:700}
+.message{background:#f7f8f4;border-radius:0 11px 11px 0;border-left:3px solid #c8d8bd;padding:13px 15px;color:#4d5c56;font-size:.91rem;line-height:1.65;margin:14px 0 18px}
+form{display:flex;gap:9px;flex-wrap:wrap}button{font:600 .87rem 'Segoe UI',Arial,sans-serif;border:0;border-radius:9px;padding:10px 15px;background:#1c5a4c;color:white;cursor:pointer;transition:transform .15s,background .15s}button:hover{background:#15493e;transform:translateY(-1px)}button.secondary{background:#fff;color:#53615b;border:1px solid #dce2da}button.secondary:hover{background:#f7f8f4}button:focus-visible{outline:3px solid #d4f06e;outline-offset:3px}.decision{display:inline-flex;color:#215946;font-weight:700;background:#edf5ef;border-radius:8px;padding:9px 12px;margin:0}
+.empty{padding:38px;text-align:center;background:linear-gradient(135deg,#fff,#f7f8f3)}.empty-icon{width:54px;height:54px;margin:0 auto 14px;border-radius:18px;background:#eaf2df;color:#54743c;display:grid;place-items:center;font-size:1.45rem}.empty h3{margin-bottom:7px}.empty p,.muted{color:#77817d;margin:0}
+.skipped-panel{padding:20px 24px}.skipped{list-style:none;margin:0;padding:0}.skipped li{padding:12px 0;border-bottom:1px solid #eff0eb;color:#66716c;font-size:.9rem}.skipped li:last-child{border-bottom:0}.skipped strong{color:#32443d}.reason-dot{display:inline-block;width:7px;height:7px;background:#dd9776;border-radius:50%;margin-right:9px;vertical-align:1px}
+footer{margin-top:28px;text-align:center;color:#85908a;font-size:.8rem;padding:12px}
+@media(max-width:680px){header{padding:24px 20px 44px}.topline{margin-bottom:39px}.hero-copy{padding-bottom:4px}main{padding:0 15px 42px;margin-top:-16px}.summary{gap:8px;margin-bottom:30px}.stat{padding:13px 10px;display:block;text-align:center;border-radius:13px}.stat-icon{width:32px;height:32px;margin:0 auto 7px;border-radius:10px}.stat strong{font-size:1.3rem}.stat span{font-size:.7rem;line-height:1.15;display:block}.section-heading{align-items:start;flex-direction:column;gap:4px}.reminder-card{padding:17px 15px;border-radius:15px}.card-head{align-items:start}.card-title{gap:9px}.avatar{width:36px;height:36px;flex-basis:36px;border-radius:12px}.badge{font-size:.72rem;padding:6px 8px}.details{gap:6px;margin:14px 0 11px}.detail-chip{font-size:.78rem;padding:7px 8px}.message{font-size:.87rem;padding:11px 12px}.skipped-panel{padding:16px}.empty{padding:30px 18px}}
+@media(max-width:390px){.date-pill{font-size:.72rem;padding:7px 9px}.brand{font-size:.88rem}.summary{gap:6px}.stat{padding:12px 6px}.stat span{font-size:.65rem}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
+"""
+
 
 def render_page(plan, invoices):
     by_id = {row.get("id"): row for row in invoices if isinstance(row, dict)}
     cards = []
     for action in plan["actions"]:
         invoice = by_id.get(action["invoice_id"], {})
-        approval = "<p class='badge'>No approval needed</p>"
+        approval = "<p class='decision'>No approval needed</p>"
         if action["needs_approval"]:
             decision = DECISIONS.get(action["invoice_id"])
             if decision:
@@ -32,18 +61,23 @@ def render_page(plan, invoices):
                     "<button class='secondary' name='decision' value='rejected'>Reject</button></form>"
                 )
         amount = f"{invoice.get('currency', '')} {invoice.get('amount', 0):,.2f}"
+        customer = str(invoice.get("customer", "Customer"))
+        initials = "".join(part[0] for part in customer.split()[:2]).upper() or "?"
         cards.append(
-            "<article class='card'><div class='card-head'><div>"
+            f"<article class='reminder-card' data-step='{escape(action['step'], quote=True)}'>"
+            "<div class='card-head'><div class='card-title'>"
+            f"<span class='avatar' aria-hidden='true'>{escape(initials)}</span><div>"
             f"<p class='eyebrow'>{escape(action['step'])} reminder</p>"
-            f"<h3>{escape(str(invoice.get('customer', 'Customer')))}</h3></div>"
+            f"<h3>{escape(customer)}</h3></div></div>"
             f"<span class='badge'>{action['days_overdue']} days overdue</span></div>"
-            f"<p><strong>Invoice:</strong> {escape(action['invoice_id'])} &nbsp; "
-            f"<strong>Amount:</strong> {escape(amount)}</p>"
+            "<div class='details'>"
+            f"<span class='detail-chip'>Invoice <strong>{escape(action['invoice_id'])}</strong></span>"
+            f"<span class='detail-chip'>Amount <strong>{escape(amount)}</strong></span></div>"
             f"<p class='message'>{escape(action['message'])}</p>{approval}</article>"
         )
     action_html = "".join(cards) or (
-        "<div class='empty'><h3>You are all caught up</h3>"
-        "<p>No reminders need action today.</p></div>"
+        "<div class='empty'><div class='empty-icon' aria-hidden='true'>✓</div>"
+        "<h3>You are all caught up</h3><p>No reminders need action today.</p></div>"
     )
     reasons = {
         "duplicate_id": "This invoice ID appears more than once.",
@@ -53,26 +87,31 @@ def render_page(plan, invoices):
         "invalid_paid_date": "The paid date is invalid or is after today.",
     }
     skipped_html = (
-        "<ul class='skipped'>" + "".join(
-            f"<li><strong>{escape(item['invoice_id'])}:</strong> "
+        "<div class='skipped-panel'><ul class='skipped'>" + "".join(
+            f"<li><span class='reason-dot' aria-hidden='true'></span><strong>{escape(item['invoice_id'])}:</strong> "
             f"{escape(reasons.get(item['reason'], 'This invoice has invalid data.'))}</li>"
             for item in plan["skipped"]
-        ) + "</ul>"
+        ) + "</ul></div>"
         if plan["skipped"] else "<p class='muted'>No invoices were skipped.</p>"
     )
     approvals = sum(action["needs_approval"] for action in plan["actions"])
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>Payment reminders</title>
-<style>
-:root{{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#172a31;background:#f4f7f6}}*{{box-sizing:border-box}}body{{margin:0}}header{{background:#143b3b;color:#fff;padding:32px max(20px,calc((100vw - 960px)/2)}}header p{{margin:0;color:#cce0dc}}main{{max-width:960px;padding:28px 20px 60px;margin:auto}}h1{{margin:0 0 8px;font-size:clamp(1.7rem,5vw,2.4rem)}}h2{{margin:30px 0 14px;font-size:1.25rem}}.summary{{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0 28px}}.stat,.card,.empty,.error{{background:#fff;border:1px solid #dce6e2;border-radius:14px;padding:18px;margin:12px 0}}.stat{{min-width:130px;border-radius:12px}}.stat strong{{display:block;font-size:1.35rem}}.stat span,.muted{{color:#5b6d6b;font-size:.92rem}}.card-head{{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}}.card h3{{margin:4px 0}}.eyebrow{{text-transform:uppercase;letter-spacing:.09em;font-weight:700;font-size:.72rem;color:#287164;margin:0}}.badge{{display:inline-block;border-radius:999px;background:#e8f3ef;color:#175b4c;padding:6px 10px;font-size:.83rem;font-weight:650}}.card p{{line-height:1.55}}.message{{border-left:3px solid #8db7aa;padding:8px 12px;background:#f7faf9}}.decision{{color:#175b4c;font-weight:700}}form{{display:flex;gap:10px;flex-wrap:wrap}}button{{font:inherit;font-weight:650;border:0;border-radius:8px;padding:10px 16px;background:#176b58;color:white;cursor:pointer}}button.secondary{{background:white;color:#344c4a;border:1px solid #9aadaa}}button:focus-visible{{outline:3px solid #e4a72c;outline-offset:3px}}.skipped{{padding-left:22px}}.skipped li{{padding:7px 0}}footer{{margin-top:32px;color:#5b6d6b;font-size:.88rem}}@media(max-width:480px){{header{{padding:25px 20px}}main{{padding:22px 14px 40px}}.card{{padding:16px}}.card-head{{display:block}}.card-head .badge{{margin-top:8px}}}}
-</style></head><body><header><h1>Payment reminders</h1>
-<p>Daily accounts overview · {escape(plan['today'])}</p></header><main>
-<div class="summary"><div class="stat"><strong>{len(plan['actions'])}</strong><span>reminders to review</span></div>
-<div class="stat"><strong>{approvals}</strong><span>need approval</span></div>
-<div class="stat"><strong>{len(plan['skipped'])}</strong><span>invoices skipped</span></div></div>
-<h2>Today's plan</h2>{action_html}<h2>Invoices to check</h2>{skipped_html}
-<footer>Approvals are recorded for this app session. No messages are sent.</footer>
-</main></body></html>"""
+<style>{STYLES}</style></head><body><header>
+<div class="topline"><div class="brand"><span class="brand-mark" aria-hidden="true">↗</span>Ledgerly</div>
+<span class="date-pill">Daily overview &nbsp;|&nbsp; {escape(plan['today'])}</span></div>
+<div class="hero-copy"><p class="kicker">Receivables workspace</p>
+<h1>Make every follow-up<br>feel effortless.</h1>
+<p>Your daily payment queue is ready. Review reminders, approve the next step, and keep every invoice moving.</p></div>
+</header><main><section class="summary" aria-label="Plan summary">
+<div class="stat"><div class="stat-icon" aria-hidden="true">↗</div><div><strong>{len(plan['actions'])}</strong><span>reminders to review</span></div></div>
+<div class="stat"><div class="stat-icon" aria-hidden="true">◎</div><div><strong>{approvals}</strong><span>need your approval</span></div></div>
+<div class="stat"><div class="stat-icon" aria-hidden="true">!</div><div><strong>{len(plan['skipped'])}</strong><span>invoices to check</span></div></div>
+</section><section aria-labelledby="plan-heading"><div class="section-heading"><h2 id="plan-heading">Today's plan</h2>
+<p>Sorted by invoice ID · one next step per invoice</p></div>{action_html}</section>
+<section aria-labelledby="skipped-heading"><div class="section-heading"><h2 id="skipped-heading">Needs a closer look</h2>
+<p>Invoices with data that needs attention</p></div>{skipped_html}</section>
+<footer>Approvals stay in this session. Nothing is sent to customers.</footer></main></body></html>"""
 
 
 class Handler(BaseHTTPRequestHandler):
