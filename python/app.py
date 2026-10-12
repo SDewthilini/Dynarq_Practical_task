@@ -94,7 +94,10 @@ def render_page(plan, invoices):
         ) + "</ul></div>"
         if plan["skipped"] else "<p class='muted'>No invoices were skipped.</p>"
     )
-    approvals = sum(action["needs_approval"] for action in plan["actions"])
+    approvals = sum(
+        action["needs_approval"] and action["invoice_id"] not in DECISIONS
+        for action in plan["actions"]
+    )
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>Payment reminders</title>
 <style>{STYLES}</style></head><body><header>
